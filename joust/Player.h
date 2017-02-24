@@ -4,9 +4,9 @@ class Player :
 	public GameObject
 {
 public:
-	Player();
+	Player(); //Think about constructor and if it needs any input.
 	~Player();
-	int getScore();
+	int getScore(); // Set/Get done.
 	int getLives();
 	void setScore(int);
 	void setLives(int);

@@ -3,9 +3,9 @@
 class GameObject
 {
 public:
-	GameObject();
+	GameObject(); //**Not done**
 	~GameObject();
-	void setX(double);
+	void setX(double); //All set / get functions are done
 	void setY(double);
 	void setVX(double);
 	void setVY(double);
@@ -19,9 +19,9 @@ public:
 	double getVY();
 	double getL();
 	double getW();
-	int getType();
-	std::string getSprite();
-	void collision(double, double); //Resolve a collision given the x,y of the collision.
+	int getType(); 
+	std::string getSprite();// All set / get functions are done
+	void collision(double, double); //Resolve a collision given the x,y of the collision. **Not done**
 private:
 	double x, y; //Position in the window.
 	double vx, vy; //Velocity.
