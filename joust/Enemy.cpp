@@ -10,4 +10,3 @@ Enemy::Enemy()
 Enemy::~Enemy()
 {
 }
-
