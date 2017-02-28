@@ -4,12 +4,13 @@ class Player :
 	public GameObject
 {
 public:
-	Player(); //Think about constructor and if it needs any input.
+	Player(double, double, double, double, int, std::string); //Think about constructor and if it needs any input.
 	~Player();
-	int getScore(); // Set/Get done.
+	int getScore(); 
 	int getLives();
 	void setScore(int);
 	void setLives(int);
+	virtual void collision(double, double, bool); //Virtual so it can have access to lives.
 private:
 	int score;
 	int lives; 

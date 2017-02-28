@@ -3,8 +3,16 @@
 #include <string>
 
 
-GameObject::GameObject()
+GameObject::GameObject(double x1, double y1, double l1, double w1, int type1, std::string sprite1)
 {
+	x = x1;
+	y = y1;
+	l = l1;
+	w = w1;
+	type = type1;
+	sprite = sprite1;
+	vx = 0;
+	vy = 0;
 }
 
 
@@ -106,4 +114,21 @@ double GameObject::getY()
 int GameObject::getType()
 {
 	return type;
+}
+
+
+void GameObject::setMaxSpeed(int speed)
+{
+	maxSpeed = speed;
+}
+
+
+int GameObject::getMaxSpeed()
+{
+	return maxSpeed;
+}
+
+void GameObject::collision(double colx, double coly, bool die)
+{
+
 }
