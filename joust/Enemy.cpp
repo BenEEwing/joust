@@ -1,9 +1,12 @@
 #include "stdafx.h"
 #include "Enemy.h"
+#include <string>
 
 
-Enemy::Enemy(int n)
+Enemy::Enemy(double x1, double y1, double l1, double w1, int type1, std::string sprite1,int n)
+: GameObject::GameObject(x1, y1, l1, w1, type1, sprite1)
 {
+	rank = n;
 }
 
 
@@ -59,6 +62,12 @@ void Enemy::setStats()
 		break;
 	case 5: //Enemy Name: Lava Troll
 		setSprite("LavaTroll.png");
+		setL(1);
+		setW(1);
+		setMaxSpeed(2);
+		break;
+	case 6: //Enemy Name: Egg
+		setSprite("Egg.png");
 		setL(1);
 		setW(1);
 		setMaxSpeed(2);
