@@ -23,7 +23,7 @@ public:
 	int getType(); 
 	int getMaxSpeed();
 	std::string getSprite();
-	virtual void collision(double, double, bool); //Resolve a collision given the x,y of the collision, virtual for player and enemy.
+	virtual bool collision(double, double, bool); //Resolve a collision given the x,y of the collision, virtual for player and enemy.
 private:
 	double x, y; //Position in the window.
 	double vx, vy; //Velocity.
