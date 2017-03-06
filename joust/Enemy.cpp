@@ -106,5 +106,6 @@ bool Enemy::collison(double colx, double coly, bool die)
 		else
 			this->setVY(0); //Stop y velocity completely
 	}
+	//Death animation.
 	return isDelete;
 }
