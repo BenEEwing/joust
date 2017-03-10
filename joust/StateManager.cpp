@@ -4,7 +4,12 @@
 #include "GameObject.h"
 #include "Enemy.h"
 #include "Player.h"
+#include <iostream>
+#include <ctime>
+#include <ratio>
+#include <chrono>
 
+using namespace std::chrono;
 
 StateManager::StateManager(sf::Window c)
 {
@@ -22,26 +27,37 @@ StateManager::~StateManager()
 	}
 }
 
-//Need a tick function.
+//Game loop with tick function limiting it to 20fps, could be modified but 20 seems easy.
 void StateManager::run()
 {
+	high_resolution_clock::time_point first = high_resolution_clock::now(); //Original time.
 	bool exit = false;
+	int frame = 0; //Number of frames that have passed.
 	while (!exit)
 	{
-
-		updateGame();
-		if (col.at(0) = NULL)
+		if (col.at(0) == NULL)
 			exit = true;
+		high_resolution_clock::time_point current = high_resolution_clock::now(); //Current time.
+		double elapsed = duration_cast<duration<double>>(current - first).count(); //Cast it as a double.
+		if (frame * 0.05 < elapsed) //If it has been a 5th of a second basically.
+		{
+			updateGame(); //Call to doing every game thing.
+			frame++; //Increase frames since the clock is constantly growing.
+		}
 	}
 }
 
 //Currently in very primitive state. No gravity, only takes x/y and adds VX/VY to it.
 void StateManager::applyV()
 {
-	for (int i = 0; i < col.size(); i++)
+	for (int i = 0; i < col.size(); i++) //Apply the current velcoities.
 	{
 		col.at(i)->setX(col.at(i)->getX() + col.at(i)->getVX());
 		col.at(i)->setY(col.at(i)->getY() + col.at(i)->getVY());
+	}
+	for (int i = 0; i < col.size(); i++) //Change the velocities to compensate for gravity/slowing down.
+	{
+		if (col.at(i)->getVY()) //Going to be an if to see if it's going up.
 	}
 }
 
@@ -78,5 +94,6 @@ void StateManager::addObj(GameObject* x)
 //To make it cleaner in run. Will call all the functions that happen every tick.
 void StateManager::updateGame()
 {
+	applyV();
 	//Functions
 }
