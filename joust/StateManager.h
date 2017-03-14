@@ -5,10 +5,10 @@
 class StateManager
 {
 public:
-	StateManager(sf::Window);
-	void applyV(); //Calculates new x,y for objects based on their current vx,vy / Also calculates gravity and slowing.
-	void drawWin(); //Draws the window based on the newest frame.
-	void manageWin(); //Manages any changes that need to happen to the window.
+	StateManager();
+	void applyVelocity(); //Calculates new x,y for objects based on their current vx,vy / Also calculates gravity and slowing.
+	void drawWindow(); //Draws the window based on the newest frame.
+	void manageWindow(); //Manages any changes that need to happen to the window.
 	void collisionCheck(); //Checks the entirety of the window to determine if there are any collisions happening.
 	void manageKey(sf::Keyboard::Key); //Manages all inputs from the user, not sure on what it takes right now **LOOK UP KEY INPUTS WITH SFML**
 	void run(); //The continuous loop that will be the game.
@@ -17,7 +17,7 @@ public:
 
 	~StateManager();
 private:
-	sf::Window gameWindow; //Sfml window
+	sf::RenderWindow gameWindow; //Sfml window
 	std::vector <GameObject*> col; //Vector with all the different objects that are on the screen at the time.
 };
 

@@ -12,8 +12,7 @@ using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	sf::Window win;
-	StateManager state(win);
+	StateManager state();
 	system("pause");
 	return 0;
 }

@@ -11,10 +11,10 @@
 
 using namespace std::chrono;
 
-StateManager::StateManager(sf::Window c)
+StateManager::StateManager()
 {
-	gameWindow = c;
 	col.push_back(new Player(0.0, 0.0, 5, 5, 1, "Player.png")); //Make player at position 0.
+	sf::RenderWindow window(sf::VideoMode(800, 600), "Joust");
 }
 
 
@@ -70,13 +70,8 @@ void StateManager::run()
 }
 
 //Currently in very primitive state. Attempted gravity and slowing down, need to check on math and stuff.
-void StateManager::applyV()
-{
-	for (int i = 0; i < col.size(); i++) //Apply the current velcoities.
-	{
-		col.at(i)->setX(col.at(i)->getX() + col.at(i)->getVX());
-		col.at(i)->setY(col.at(i)->getY() + col.at(i)->getVY());
-	}
+void StateManager::applyVelocity()
+{	
 	for (int i = 0; i < col.size(); i++) //Change the velocities to compensate for gravity/slowing down.
 	{
 		if (col.at(i)->getVY() > -1) //Going to be an if to see if it's going up.
@@ -88,16 +83,26 @@ void StateManager::applyV()
 		else
 			col.at(i)->setVX(0);
 	}
+	for (int i = 0; i < col.size(); i++) //Apply the current velcoities.
+	{
+		col.at(i)->setX(col.at(i)->getX() + col.at(i)->getVX());
+		col.at(i)->setY(col.at(i)->getY() + col.at(i)->getVY());
+	}
+
 }
 
 //Going to print out all the objects into the window.
-void StateManager::drawWin()
+void StateManager::drawWindow()
 {
+
+
+
+
 
 }
 
 //Manages any changes that need to happen with the window. Not sure purpose right now.
-void StateManager::manageWin()
+void StateManager::manageWindow()
 {
 	
 }
@@ -146,6 +151,6 @@ void StateManager::addObj(GameObject* x)
 //To make it cleaner in run. Will call all the functions that happen every tick.
 void StateManager::updateGame()
 {
-	applyV();
+	applyVelocity();
 	//Functions
 }
