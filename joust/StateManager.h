@@ -6,7 +6,7 @@ class StateManager
 {
 public:
 	StateManager(sf::Window);
-	void applyV(); //Calculates new x,y for objects based on their current vx,vy.
+	void applyV(); //Calculates new x,y for objects based on their current vx,vy / Also calculates gravity and slowing.
 	void drawWin(); //Draws the window based on the newest frame.
 	void manageWin(); //Manages any changes that need to happen to the window.
 	void collisionCheck(); //Checks the entirety of the window to determine if there are any collisions happening.
