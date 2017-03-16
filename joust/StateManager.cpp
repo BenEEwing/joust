@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <SFML/Graphics.hpp>
+#include <SFML\Audio.hpp>
 #include "StateManager.h"
 #include "GameObject.h"
 #include "Enemy.h"
@@ -11,6 +12,8 @@
 
 using namespace std::chrono;
 
+sf::SoundBuffer buffer;
+sf::Sound sound;
 StateManager::StateManager()
 {
 	col.push_back(new Player(0.0, 0.0, 5, 5, 1, "Player.png")); //Make player at position 0.
@@ -153,4 +156,13 @@ void StateManager::updateGame()
 {
 	applyVelocity();
 	//Functions
+}
+
+void StateManager::playSoundFile(std::string filename)
+{
+	std::string temp = "joust_sounds\\joust_" + filename + ".ogg";
+
+	buffer.loadFromFile(temp);
+	sound.setBuffer(buffer);
+	sound.play();
 }

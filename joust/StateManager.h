@@ -2,6 +2,7 @@
 #include <vector>
 #include "GameObject.h"
 #include <SFML/Graphics.hpp>
+#include <string>
 class StateManager
 {
 public:
@@ -14,7 +15,7 @@ public:
 	void run(); //The continuous loop that will be the game.
 	void addObj(GameObject*); //Add a game object to the vector.
 	void updateGame(); //Will run all the functions for updating the game.
-
+	void playSoundFile(std::string);
 	~StateManager();
 private:
 	sf::RenderWindow gameWindow; //Sfml window
