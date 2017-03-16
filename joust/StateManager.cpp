@@ -12,8 +12,7 @@
 
 using namespace std::chrono;
 
-//sf::SoundBuffer buffer;
-//sf::Sound sound;
+
 StateManager::StateManager()
 {
 	col.push_back(new Player(0.0, 0.0, 5, 5, 1, "Player.png")); //Make player at position 0.
@@ -160,9 +159,12 @@ void StateManager::updateGame()
 
 void StateManager::playSoundFile(std::string filename)
 {
+	sf::SoundBuffer buffer;
+	sf::Sound sound;
+
 	std::string temp = "joust_sounds\\joust_" + filename + ".ogg";
 
-	//buffer.loadFromFile(temp);
-	//sound.setBuffer(buffer);
-	//sound.play();
+	buffer.loadFromFile(temp);
+	sound.setBuffer(buffer);
+	sound.play();
 }
