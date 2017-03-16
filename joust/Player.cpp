@@ -3,7 +3,7 @@
 
 
 Player::Player(double x1, double y1, double l1, double w1, int type1, std::string sprite1) 
-: GameObject::GameObject(x1, y1, l1, w1, type1, sprite1)
+: GameObject(x1, y1, l1, w1, type1, sprite1)
 {
 	lives = 5;
 	score = 0;

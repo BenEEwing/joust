@@ -4,7 +4,7 @@
 
 
 Enemy::Enemy(double x1, double y1, double l1, double w1, int type1, std::string sprite1,int n)
-: GameObject::GameObject(x1, y1, l1, w1, type1, sprite1)
+: GameObject(x1, y1, l1, w1, type1, sprite1)
 {
 	rank = n;
 }
