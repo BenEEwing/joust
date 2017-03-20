@@ -15,8 +15,11 @@ using namespace std::chrono;
 
 StateManager::StateManager()
 {
-	col.push_back(new Player(0.0, 0.0, 5, 5, 1, "Player.png")); //Make player at position 0.
+	col.push_back(new Player(50, 50, 5, 5, 5, "player.png")); //Make player at position 0.
 	sf::RenderWindow window(sf::VideoMode(800, 600), "Joust");
+	sf::RenderWindow * windowptr = &window;
+	gameWindow = windowptr;
+	run();
 }
 
 
@@ -45,25 +48,17 @@ void StateManager::run()
 		double elapsed = duration_cast<duration<double>>(current - first).count(); //Cast it as a double.
 		if (frame * 0.05 < elapsed) //If it has been a 5th of a second basically.
 		{
-			while (gameWindow.pollEvent(event))
+			while (gameWindow->pollEvent(event))
 			{
 				// check the type of the event...
-				switch (event.type)
-				{
-					// window closed
-				case sf::Event::Closed:
-					gameWindow.close();
-					break;
-
-					// key pressed
-				case sf::Event::KeyPressed:
-					manageKey(event.key.code);
-						break;
-
-					// we don't process other types of events
-				default:
-					break;
-				}
+				if (event.type == sf::Event::Closed)
+					gameWindow->close();
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+					manageKey(sf::Keyboard::Key::Left);
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+					manageKey(sf::Keyboard::Key::Right);
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+					manageKey(sf::Keyboard::Key::Up);
 			}
 			updateGame(); //Call to doing every game thing.
 			frame++; //Increase frames since the clock is constantly growing.
@@ -76,19 +71,39 @@ void StateManager::applyVelocity()
 {	
 	for (int i = 0; i < col.size(); i++) //Change the velocities to compensate for gravity/slowing down.
 	{
-		if (col.at(i)->getVY() > -1) //Going to be an if to see if it's going up.
-			col.at(i)->setVY(col.at(i)->getVY() - 0.2); //Need to test to see what number actually makes sense here for gravity.
-		else if (col.at(i)->getVX() > 0 && col.at(i)->getVX() - 0.2 > 0)
-			col.at(i)->setVX(col.at(i)->getVX() - 0.2); //Natural slowing down, seems bad right now, not sure on the math for this stuff.
-		else if (col.at(i)->getVX() < 0 && col.at(i)->getVX() + 0.2 < 0)
-			col.at(i)->setVX(col.at(i)->getVX() + 0.2);
+		if (col.at(i)->getVY() < 5) //Going to be an if to see if it's going up.
+			col.at(i)->setVY(col.at(i)->getVY() + 0.2); //Need to test to see what number actually makes sense here for gravity.
+		else
+			col.at(i)->setVY(5);
+		if (col.at(i)->getVX() > 0 && col.at(i)->getVX() + 0.2 > 0)
+			col.at(i)->setVX(col.at(i)->getVX() + 0.2); //Natural slowing down, seems bad right now, not sure on the math for this stuff.
+		else if (col.at(i)->getVX() < 0 && col.at(i)->getVX() - 0.2 < 0)
+			col.at(i)->setVX(col.at(i)->getVX() - 0.2);
 		else
 			col.at(i)->setVX(0);
 	}
 	for (int i = 0; i < col.size(); i++) //Apply the current velcoities.
 	{
-		col.at(i)->setX(col.at(i)->getX() + col.at(i)->getVX());
-		col.at(i)->setY(col.at(i)->getY() + col.at(i)->getVY());
+		if (col.at(i)->getX() + col.at(i)->getVX() < 700 && col.at(i)->getX() + col.at(i)->getVX() > 0)
+			col.at(i)->setX(col.at(i)->getX() + col.at(i)->getVX());
+		else if (col.at(i)->getX() + col.at(i)->getVX() < 700)
+		{
+			col.at(i)->setX(700);
+		}
+		else
+		{
+			col.at(i)->setX(0);
+			col.at(i)->setVX(0);
+		}
+		if (col.at(i)->getY() + col.at(i)->getVY() < 500 && col.at(i)->getY() + col.at(i)->getVY() > 0)
+			col.at(i)->setY(col.at(i)->getY() + col.at(i)->getVY());
+		else if (col.at(i)->getY() + col.at(i)->getVY() < 500)
+			col.at(i)->setY(6);
+		else
+		{
+			col.at(i)->setY(500);
+			col.at(i)->setVY(0);
+		}
 	}
 
 }
@@ -96,11 +111,19 @@ void StateManager::applyVelocity()
 //Going to print out all the objects into the window.
 void StateManager::drawWindow()
 {
+	sf::Texture pTexture;
+	sf::Sprite pSprite;
+	gameWindow->clear();
+	for (int i = 0; i < col.size(); i++)
+	{
+		pTexture.loadFromFile(col.at(i)->getSprite());
+		pSprite.setTexture(pTexture);		
+		pSprite.setPosition(col.at(i)->getX(), col.at(i)->getY());
 
-
-
-
-
+		gameWindow->draw(pSprite);
+		std::cout << "x: " << col.at(i)->getX() << "y: " << col.at(i)->getY() << std::endl;
+	}
+	gameWindow->display();
 }
 
 //Manages any changes that need to happen with the window. Not sure purpose right now.
@@ -118,28 +141,29 @@ void StateManager::collisionCheck()
 //Change Velocity based on key press/Pause menu.
 void StateManager::manageKey(sf::Keyboard::Key input)
 {
+	std::cout << input << std::endl;
 	switch (input)
 	{
 	case sf::Keyboard::Key::Up:
 	case sf::Keyboard::Key::W:
-		if (col.at(0)->getVY() + 0.5 < col.at(0)->getMaxSpeed())
-			col.at(0)->setVY(col.at(0)->getVY() + 0.5);
+		if (col.at(0)->getVY() - 0.5 < col.at(0)->getMaxSpeed() * -1)
+			col.at(0)->setVY(col.at(0)->getVY() - 0.5);
 		else
-			col.at(0)->setVY(col.at(0)->getMaxSpeed());
+			col.at(0)->setVY(col.at(0)->getMaxSpeed() * -1);
 		break;
 	case sf::Keyboard::Key::Right:
 	case  sf::Keyboard::Key::D:
-		if (col.at(0)->getVX() + 0.5 < col.at(0)->getMaxSpeed())
-			col.at(0)->setVX(col.at(0)->getVX() + 0.5);
-		else
-			col.at(0)->setVX(col.at(0)->getMaxSpeed());
-		break;
-	case sf::Keyboard::Key::Left:
-	case  sf::Keyboard::Key::A:
-		if (col.at(0)->getVX() - 0.5 > col.at(0)->getMaxSpeed() * -1)
+		if (col.at(0)->getVX() - 0.5 < col.at(0)->getMaxSpeed() * -1)
 			col.at(0)->setVX(col.at(0)->getVX() - 0.5);
 		else
 			col.at(0)->setVX(col.at(0)->getMaxSpeed() * -1);
+		break;
+	case sf::Keyboard::Key::Left:
+	case  sf::Keyboard::Key::A:
+		if (col.at(0)->getVX() + 0.5 > col.at(0)->getMaxSpeed())
+			col.at(0)->setVX(col.at(0)->getVX() + 0.5);
+		else
+			col.at(0)->setVX(col.at(0)->getMaxSpeed());
 		break;
 	}
 }
@@ -154,6 +178,7 @@ void StateManager::addObj(GameObject* x)
 void StateManager::updateGame()
 {
 	applyVelocity();
+	drawWindow();
 	//Functions
 }
 

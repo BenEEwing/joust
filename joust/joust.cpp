@@ -12,7 +12,8 @@ using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	StateManager state();
+	StateManager * dog = new StateManager();
+	
 	system("pause");
 	return 0;
 }

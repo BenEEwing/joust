@@ -18,7 +18,7 @@ public:
 	void playSoundFile(std::string);
 	~StateManager();
 private:
-	sf::RenderWindow gameWindow; //Sfml window
+	sf::RenderWindow * gameWindow; //Sfml window
 	std::vector <GameObject*> col; //Vector with all the different objects that are on the screen at the time.
 };
 
