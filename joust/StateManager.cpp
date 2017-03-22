@@ -15,7 +15,7 @@ using namespace std::chrono;
 
 StateManager::StateManager()
 {
-	col.push_back(new Player(50, 50, 5, 5, 5, "player.png")); //Make player at position 0.
+	col.push_back(new Player(50, 50, 5, 5, 5, 3, "player.png")); //Make player at position 0.
 	sf::RenderWindow window(sf::VideoMode(800, 600), "Joust");
 	sf::RenderWindow * windowptr = &window;
 	gameWindow = windowptr;
@@ -38,6 +38,7 @@ void StateManager::run()
 	high_resolution_clock::time_point first = high_resolution_clock::now(); //Original time.
 	bool exit = false;
 	int frame = 0; //Number of frames that have passed.
+	sf::Keyboard::Key x; //Checking for space bar so you can't just hold it and it continuously go.
 	while (!exit)
 	{
 		sf::Event event;
@@ -54,11 +55,23 @@ void StateManager::run()
 				if (event.type == sf::Event::Closed)
 					gameWindow->close();
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+				{
 					manageKey(sf::Keyboard::Key::Left);
+					x = sf::Keyboard::Key::Right;
+				}
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+				{
 					manageKey(sf::Keyboard::Key::Right);
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-					manageKey(sf::Keyboard::Key::Up);
+					x = sf::Keyboard::Key::Right;
+				}
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && x != sf::Keyboard::Key::Space) //If it's space and you didn't press space last time.
+				{
+					manageKey(sf::Keyboard::Key::Space);
+					x = sf::Keyboard::Key::Space;
+				}
+				else
+					x = sf::Keyboard::Key::Right;
+
 			}
 			updateGame(); //Call to doing every game thing.
 			frame++; //Increase frames since the clock is constantly growing.
@@ -75,30 +88,32 @@ void StateManager::applyVelocity()
 			col.at(i)->setVY(col.at(i)->getVY() + 0.2); //Need to test to see what number actually makes sense here for gravity.
 		else
 			col.at(i)->setVY(5);
-		if (col.at(i)->getVX() > 0 && col.at(i)->getVX() + 0.2 > 0)
-			col.at(i)->setVX(col.at(i)->getVX() + 0.2); //Natural slowing down, seems bad right now, not sure on the math for this stuff.
-		else if (col.at(i)->getVX() < 0 && col.at(i)->getVX() - 0.2 < 0)
-			col.at(i)->setVX(col.at(i)->getVX() - 0.2);
+		if (col.at(i)->getVX() > 0 && col.at(i)->getVX() - 0.2 > 0)
+			col.at(i)->setVX(col.at(i)->getVX() - 0.2); //Natural slowing down, seems bad right now, not sure on the math for this stuff.
+		else if (col.at(i)->getVX() < 0 && col.at(i)->getVX() + 0.2 < 0)
+			col.at(i)->setVX(col.at(i)->getVX() + 0.2);
 		else
 			col.at(i)->setVX(0);
 	}
 	for (int i = 0; i < col.size(); i++) //Apply the current velcoities.
 	{
-		if (col.at(i)->getX() + col.at(i)->getVX() < 700 && col.at(i)->getX() + col.at(i)->getVX() > 0)
-			col.at(i)->setX(col.at(i)->getX() + col.at(i)->getVX());
-		else if (col.at(i)->getX() + col.at(i)->getVX() < 700)
+		if (col.at(i)->getX() + col.at(i)->getVX() < 815 && col.at(i)->getX() + col.at(i)->getVX() > -10) //Check to see if it's at a horizontal edge
+			col.at(i)->setX(col.at(i)->getX() + col.at(i)->getVX()); //If it's not then apply velcoites as normal
+		else if (col.at(i)->getX() + col.at(i)->getVX() < 815) //If it's on the left edge set it to the right edge
 		{
-			col.at(i)->setX(700);
+			col.at(i)->setX(815);
 		}
 		else
 		{
-			col.at(i)->setX(0);
-			col.at(i)->setVX(0);
+			col.at(i)->setX(-10); //Otherwise set it to the left edge
 		}
 		if (col.at(i)->getY() + col.at(i)->getVY() < 500 && col.at(i)->getY() + col.at(i)->getVY() > 0)
 			col.at(i)->setY(col.at(i)->getY() + col.at(i)->getVY());
 		else if (col.at(i)->getY() + col.at(i)->getVY() < 500)
+		{
 			col.at(i)->setY(6);
+			col.at(i)->setVY(1);
+		}
 		else
 		{
 			col.at(i)->setY(500);
@@ -126,10 +141,13 @@ void StateManager::drawWindow()
 	gameWindow->display();
 }
 
-//Manages any changes that need to happen with the window. Not sure purpose right now.
-void StateManager::manageWindow()
+//Gonna put all the objects we need into the array for each level.
+void StateManager::levelGen()
 {
+	Enemy bad(100, 100, 5, 5, 5, 3, "enemy.png", 2);
+	GameObject * ptr = &bad;
 	
+	addObj(ptr);
 }
 
 //Check quadrants of the window, narrow in on where he collision may be.
@@ -144,22 +162,19 @@ void StateManager::manageKey(sf::Keyboard::Key input)
 	std::cout << input << std::endl;
 	switch (input)
 	{
-	case sf::Keyboard::Key::Up:
-	case sf::Keyboard::Key::W:
-		if (col.at(0)->getVY() - 0.5 < col.at(0)->getMaxSpeed() * -1)
-			col.at(0)->setVY(col.at(0)->getVY() - 0.5);
+	case sf::Keyboard::Key::Space:
+		if (col.at(0)->getVY() - 1 < -2)
+			col.at(0)->setVY(col.at(0)->getVY() - 1);
 		else
-			col.at(0)->setVY(col.at(0)->getMaxSpeed() * -1);
+			col.at(0)->setVY(-2);
 		break;
-	case sf::Keyboard::Key::Right:
-	case  sf::Keyboard::Key::D:
+	case sf::Keyboard::Key::Left:
 		if (col.at(0)->getVX() - 0.5 < col.at(0)->getMaxSpeed() * -1)
 			col.at(0)->setVX(col.at(0)->getVX() - 0.5);
 		else
 			col.at(0)->setVX(col.at(0)->getMaxSpeed() * -1);
 		break;
-	case sf::Keyboard::Key::Left:
-	case  sf::Keyboard::Key::A:
+	case sf::Keyboard::Key::Right:
 		if (col.at(0)->getVX() + 0.5 > col.at(0)->getMaxSpeed())
 			col.at(0)->setVX(col.at(0)->getVX() + 0.5);
 		else
@@ -179,6 +194,7 @@ void StateManager::updateGame()
 {
 	applyVelocity();
 	drawWindow();
+	levelGen();
 	//Functions
 }
 

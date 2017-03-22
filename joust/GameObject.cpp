@@ -3,7 +3,7 @@
 #include <string>
 
 
-GameObject::GameObject(double x1, double y1, double l1, double w1, int type1, std::string sprite1)
+GameObject::GameObject(double x1, double y1, double l1, double w1, int type1, int speed, std::string sprite1)
 {
 	x = x1;
 	y = y1;
@@ -13,6 +13,7 @@ GameObject::GameObject(double x1, double y1, double l1, double w1, int type1, st
 	sprite = sprite1;
 	vx = 0;
 	vy = 0;
+	setMaxSpeed(speed);
 }
 
 

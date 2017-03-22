@@ -5,7 +5,7 @@ class Enemy :
 	public GameObject
 {
 public:
-	Enemy(double, double, double, double, int, std::string, int);
+	Enemy(double, double, double, double, int, int, std::string, int);
 	~Enemy();
 	void setRank(int);
 	int getRank();

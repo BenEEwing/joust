@@ -3,7 +3,7 @@
 class GameObject
 {
 public:
-	GameObject(double, double, double, double, int, std::string);
+	GameObject(double, double, double, double, int, int, std::string);
 	~GameObject();
 	void setX(double);
 	void setY(double);

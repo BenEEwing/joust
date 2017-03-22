@@ -4,7 +4,7 @@ class Player :
 	public GameObject
 {
 public:
-	Player(double, double, double, double, int, std::string); //Think about constructor and if it needs any input.
+	Player(double, double, double, double, int, int, std::string); //Think about constructor and if it needs any input.
 	~Player();
 	int getScore(); 
 	int getLives();
