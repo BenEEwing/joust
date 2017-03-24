@@ -202,6 +202,7 @@ void StateManager::updateGame(int level)
 	levelGen(level);
 	applyVelocity();
 	drawWindow();
+	collisionCheck(800, 600, 0, 0, 0);
 	//Functions
 }
 
@@ -215,4 +216,48 @@ void StateManager::playSoundFile(std::string filename)
 	buffer.loadFromFile(temp);
 	sound.setBuffer(buffer);
 	sound.play();
+}
+
+
+void StateManager::collisionCheck(int maxHeight, int maxWidth, int minHeight, int minWidth, int num) //Collision detection, so far only zeroes in on where a potential collision could happen, doesn't do anything once it does.
+{
+	for (int i = 0; i < col.size(); i++)
+	{
+		if (col.at(i)->getY() < maxHeight / 2 && col.at(i)->getY() > minHeight && col.at(i)->getX() < maxWidth / 2 && col.at(i)->getX() > minWidth)
+		{			
+			num++;
+			if (num >= 2)
+			{
+				collisionCheck(maxHeight / 2, maxWidth / 2,0,0, 0);
+				num = 0;
+			}
+		}
+		else if (col.at(i)->getY() < maxHeight / 2 && col.at(i)->getY() > minHeight && col.at(i)->getX() > maxWidth / 2 && col.at(i)->getX() < minWidth)
+		{
+			num++;
+			if (num >= 2)
+			{
+				collisionCheck(maxHeight / 2, maxWidth, 0, maxWidth / 2, 0);
+				num = 0;
+			}
+		}
+		else if (col.at(i)->getY() > maxHeight / 2 && col.at(i)->getY() > minHeight && col.at(i)->getX() > maxWidth / 2 && col.at(i)->getX() < minWidth)
+		{
+			num++;
+			if (num >= 2)
+			{
+				collisionCheck(maxHeight, maxWidth, minHeight / 2, minWidth / 2, 0);
+				num = 0;
+			}
+		}
+		else if (col.at(i)->getY() > maxHeight / 2 && col.at(i)->getY() > minHeight && col.at(i)->getX() < maxWidth / 2 && col.at(i)->getX() > minWidth)
+		{
+			num++;
+			if (num >= 2)
+			{
+				collisionCheck(maxHeight, maxWidth/2, minHeight / 2, 0, 0);
+				num = 0;
+			}
+		}
+	}
 }
