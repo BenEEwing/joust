@@ -11,7 +11,7 @@
 #include <chrono>
 
 using namespace std::chrono;
-
+using namespace std;
 
 StateManager::StateManager()
 {
@@ -38,7 +38,8 @@ void StateManager::run()
 	high_resolution_clock::time_point first = high_resolution_clock::now(); //Original time.
 	bool exit = false;
 	int frame = 0; //Number of frames that have passed.
-	sf::Keyboard::Key x; //Checking for space bar so you can't just hold it and it continuously go.
+	sf::Keyboard::Key x; //Checking for space bar so you can't just hold it and continuously go.
+	int level = 0;
 	while (!exit)
 	{
 		sf::Event event;
@@ -58,11 +59,13 @@ void StateManager::run()
 				{
 					manageKey(sf::Keyboard::Key::Left);
 					x = sf::Keyboard::Key::Right;
+					col.at(0)->changeDirection(false);
 				}
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 				{
 					manageKey(sf::Keyboard::Key::Right);
 					x = sf::Keyboard::Key::Right;
+					col.at(0)->changeDirection(true);
 				}
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && x != sf::Keyboard::Key::Space) //If it's space and you didn't press space last time.
 				{
@@ -73,8 +76,9 @@ void StateManager::run()
 					x = sf::Keyboard::Key::Right;
 
 			}
-			updateGame(); //Call to doing every game thing.
+			updateGame(level); //Call to doing every game thing.
 			frame++; //Increase frames since the clock is constantly growing.
+			level++;
 		}
 	}
 }
@@ -131,10 +135,15 @@ void StateManager::drawWindow()
 	gameWindow->clear();
 	for (int i = 0; i < col.size(); i++)
 	{
+		cout << col.size() << endl;
 		pTexture.loadFromFile(col.at(i)->getSprite());
 		pSprite.setTexture(pTexture);		
 		pSprite.setPosition(col.at(i)->getX(), col.at(i)->getY());
-
+		if (col.at(i)->getDirection() == false)
+		{
+			pSprite.setOrigin(pSprite.getLocalBounds().width, 0 );
+			pSprite.setScale(-1, 1);
+		}
 		gameWindow->draw(pSprite);
 		std::cout << "x: " << col.at(i)->getX() << "y: " << col.at(i)->getY() << std::endl;
 	}
@@ -142,12 +151,10 @@ void StateManager::drawWindow()
 }
 
 //Gonna put all the objects we need into the array for each level.
-void StateManager::levelGen()
+void StateManager::levelGen(int level)
 {
-	Enemy bad(100, 100, 5, 5, 5, 3, "enemy.png", 2);
-	GameObject * ptr = &bad;
-	
-	addObj(ptr);
+	if (level == 0)
+		addObj(new Enemy(100, 100, 5, 5, 5, 3, "Bounder.png", 1));
 }
 
 //Check quadrants of the window, narrow in on where he collision may be.
@@ -190,11 +197,11 @@ void StateManager::addObj(GameObject* x)
 }
 
 //To make it cleaner in run. Will call all the functions that happen every tick.
-void StateManager::updateGame()
-{
+void StateManager::updateGame(int level)
+{	
+	levelGen(level);
 	applyVelocity();
 	drawWindow();
-	levelGen();
 	//Functions
 }
 

@@ -14,6 +14,8 @@ public:
 	void setType(int);
 	void setSprite(std::string);
 	void setMaxSpeed(int);
+	void changeDirection(bool);
+	bool getDirection();
 	double getX();
 	double getY();
 	double getVX();
@@ -25,6 +27,7 @@ public:
 	std::string getSprite();
 	virtual bool collision(double, double, bool); //Resolve a collision given the x,y of the collision, virtual for player and enemy.
 private:
+	bool direction = true;
 	double x, y; //Position in the window.
 	double vx, vy; //Velocity.
 	double l, w; //Length and width for the object.

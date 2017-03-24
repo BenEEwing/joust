@@ -133,3 +133,15 @@ bool GameObject::collision(double colx, double coly, bool die)
 {
 	return false;
 }
+
+
+void GameObject::changeDirection(bool x)
+{
+	direction = x;
+}
+
+
+bool GameObject::getDirection()
+{
+	return direction;
+}
