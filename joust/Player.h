@@ -10,7 +10,7 @@ public:
 	int getLives();
 	void setScore(int);
 	void setLives(int);
-	virtual bool collision(double, double, bool); //Virtual so it can have access to lives.
+	virtual bool collision(bool); //Virtual so it can have access to lives.
 private:
 	int score;
 	int lives; 

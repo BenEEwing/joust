@@ -10,7 +10,7 @@ public:
 	void setRank(int);
 	int getRank();
 	void setStats(); //Change all stats in GameObject based on the rank of the enemy.
-	virtual bool collison(double, double, bool);
+	virtual bool collison(bool);
 private:
 	int rank; //Used to distinguish the different types of enemies. 
 			  //Lava = 0, Bounder = 1, Hunter egg is 2, Hunter is 3, Shadow Egg is 4

@@ -16,7 +16,7 @@ public:
 	void addObj(GameObject*); //Add a game object to the vector.
 	void updateGame(int); //Will run all the functions for updating the game.
 	void playSoundFile(std::string);
-	void collisionCheck(int,int,int,int,int);
+	void collisionCheck(double,double,double,double,int,int,int,int,std::vector <GameObject*>);
 	~StateManager();
 private:
 	sf::RenderWindow * gameWindow; //Sfml window

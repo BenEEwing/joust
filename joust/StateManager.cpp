@@ -88,16 +88,19 @@ void StateManager::applyVelocity()
 {	
 	for (int i = 0; i < col.size(); i++) //Change the velocities to compensate for gravity/slowing down.
 	{
-		if (col.at(i)->getVY() < 5) //Going to be an if to see if it's going up.
-			col.at(i)->setVY(col.at(i)->getVY() + 0.2); //Need to test to see what number actually makes sense here for gravity.
-		else
-			col.at(i)->setVY(5);
-		if (col.at(i)->getVX() > 0 && col.at(i)->getVX() - 0.2 > 0)
-			col.at(i)->setVX(col.at(i)->getVX() - 0.2); //Natural slowing down, seems bad right now, not sure on the math for this stuff.
-		else if (col.at(i)->getVX() < 0 && col.at(i)->getVX() + 0.2 < 0)
-			col.at(i)->setVX(col.at(i)->getVX() + 0.2);
-		else
-			col.at(i)->setVX(0);
+		if (col.at(i)->getType() !=0)
+		{
+			if (col.at(i)->getVY() < 5) //Going to be an if to see if it's going up.
+				col.at(i)->setVY(col.at(i)->getVY() + 0.2); //Need to test to see what number actually makes sense here for gravity.
+			else
+				col.at(i)->setVY(5);
+			if (col.at(i)->getVX() > 0 && col.at(i)->getVX() - 0.2 > 0)
+				col.at(i)->setVX(col.at(i)->getVX() - 0.2); //Natural slowing down, seems bad right now, not sure on the math for this stuff.
+			else if (col.at(i)->getVX() < 0 && col.at(i)->getVX() + 0.2 < 0)
+				col.at(i)->setVX(col.at(i)->getVX() + 0.2);
+			else
+				col.at(i)->setVX(0);
+		}
 	}
 	for (int i = 0; i < col.size(); i++) //Apply the current velcoities.
 	{
@@ -135,7 +138,6 @@ void StateManager::drawWindow()
 	gameWindow->clear();
 	for (int i = 0; i < col.size(); i++)
 	{
-		cout << col.size() << endl;
 		pTexture.loadFromFile(col.at(i)->getSprite());
 		pSprite.setTexture(pTexture);		
 		pSprite.setPosition(col.at(i)->getX(), col.at(i)->getY());
@@ -154,7 +156,10 @@ void StateManager::drawWindow()
 void StateManager::levelGen(int level)
 {
 	if (level == 0)
-		addObj(new Enemy(100, 100, 5, 5, 5, 3, "Bounder.png", 1));
+	{
+		//addObj(new GameObject(100, 500, 10, 5, 0, 0, "plat5.png"));
+		addObj(new Enemy(500, 450, 10, 5, 0, 0, "Bounder.png",1));
+	}
 }
 
 //Check quadrants of the window, narrow in on where he collision may be.
@@ -202,7 +207,7 @@ void StateManager::updateGame(int level)
 	levelGen(level);
 	applyVelocity();
 	drawWindow();
-	collisionCheck(800, 600, 0, 0, 0);
+	collisionCheck(800, 600, 0, 0, 0, 0, 0, 0,col);
 	//Functions
 }
 
@@ -218,46 +223,92 @@ void StateManager::playSoundFile(std::string filename)
 	sound.play();
 }
 
-
-void StateManager::collisionCheck(int maxHeight, int maxWidth, int minHeight, int minWidth, int num) //Collision detection, so far only zeroes in on where a potential collision could happen, doesn't do anything once it does.
+//Breaks with multiple objects in the same area, but checking 2 is fine. I think it may be the infinite vectors I'm using, could def be improved.
+void StateManager::collisionCheck(double maxHeight, double maxWidth, double minHeight, double minWidth, int first,int second, int third, int fourth, vector<GameObject*> newSet)
 {
-	for (int i = 0; i < col.size(); i++)
+	vector<GameObject*> one,two,three,four;
+
+	if (newSet.size() == 2)
 	{
-		if (col.at(i)->getY() < maxHeight / 2 && col.at(i)->getY() > minHeight && col.at(i)->getX() < maxWidth / 2 && col.at(i)->getX() > minWidth)
-		{			
-			num++;
-			if (num >= 2)
-			{
-				collisionCheck(maxHeight / 2, maxWidth / 2,0,0, 0);
-				num = 0;
-			}
-		}
-		else if (col.at(i)->getY() < maxHeight / 2 && col.at(i)->getY() > minHeight && col.at(i)->getX() > maxWidth / 2 && col.at(i)->getX() < minWidth)
+		int colx, coly;
+		if (newSet.at(0)->getY() + newSet.at(0)->getL() < newSet.at(1)->getY() || newSet.at(1)->getY() + newSet.at(1)->getL() < newSet.at(0)->getY() || newSet.at(0)->getX() + newSet.at(0)->getW() < newSet.at(1)->getX() || newSet.at(1)->getX() + newSet.at(1)->getW() < newSet.at(0)->getX())
+			cout << "No Collision!!!" << endl;
+		else
 		{
-			num++;
-			if (num >= 2)
+			cout << "Collision!" << endl;
+			if (newSet.at(0)->getY() > newSet.at(1)->getY())
 			{
-				collisionCheck(maxHeight / 2, maxWidth, 0, maxWidth / 2, 0);
-				num = 0;
+				if (newSet.at(0)->collision(true) && !dynamic_cast<Player*>(col.at(0))) //Makes no sense, poly is fucked for detecting if it's an enemy...
+				{
+					for (int i = 0; i < col.size(); i++)
+					{
+						if (col.at(i) == newSet.at(0))
+						{
+							col.erase(col.begin() + i);
+							i = col.size();
+						}
+					}
+				}
+				else if (newSet.at(0)->collision(true))
+				{
+					//End the game?????
+				}
+				newSet.at(1)->collision(false);
+			}
+			else
+			{
+				if (newSet.at(1)->collision(true) && !dynamic_cast<Player*>(col.at(1)))
+				{
+					for (int i = 0; i < col.size(); i++)
+					{
+						if (col.at(i) == newSet.at(1))
+						{
+							col.erase(col.begin() + i);
+							i = col.size();
+						}
+					}
+				}
+				else if (newSet.at(1)->collision(true))
+				{
+					//End the game?????
+				}
+				newSet.at(0)->collision(false);
 			}
 		}
-		else if (col.at(i)->getY() > maxHeight / 2 && col.at(i)->getY() > minHeight && col.at(i)->getX() > maxWidth / 2 && col.at(i)->getX() < minWidth)
+	}
+	else
+	{
+
+		for (int i = 0; i < newSet.size(); i++)
 		{
-			num++;
-			if (num >= 2)
+			if (newSet.at(i)->getY() < maxHeight / 2 && newSet.at(i)->getY() > minHeight && newSet.at(i)->getX() < maxWidth / 2 && newSet.at(i)->getX() > minWidth) //Tally objects in top left/add to vector
 			{
-				collisionCheck(maxHeight, maxWidth, minHeight / 2, minWidth / 2, 0);
-				num = 0;
+				one.push_back(newSet.at(i));
+				first++;
+			}
+			else if (newSet.at(i)->getY() < maxHeight / 2 && newSet.at(i)->getY() > minHeight && newSet.at(i)->getX() > maxWidth / 2 && newSet.at(i)->getX() > minWidth)//Tally objects in top right/add them to a vector
+			{
+				two.push_back(newSet.at(i));
+				second++;
+			}
+			else if (newSet.at(i)->getY() > maxHeight / 2 && newSet.at(i)->getY() > minHeight && newSet.at(i)->getX() > maxWidth / 2 && newSet.at(i)->getX() > minWidth)//Tally objects in bottom right/add to vector
+			{
+				three.push_back(newSet.at(i));
+				third++;
+			}
+			else if (newSet.at(i)->getY() > maxHeight / 2 && newSet.at(i)->getY() > minHeight && newSet.at(i)->getX() < maxWidth / 2 && newSet.at(i)->getX() > minWidth)//Tally objects in bottom left/add to vector
+			{
+				four.push_back(newSet.at(i));
+				fourth++;
 			}
 		}
-		else if (col.at(i)->getY() > maxHeight / 2 && col.at(i)->getY() > minHeight && col.at(i)->getX() < maxWidth / 2 && col.at(i)->getX() > minWidth)
-		{
-			num++;
-			if (num >= 2)
-			{
-				collisionCheck(maxHeight, maxWidth/2, minHeight / 2, 0, 0);
-				num = 0;
-			}
-		}
+		if (first >= 2)
+			collisionCheck(maxHeight / 2, maxWidth / 2, 0, 0, 0, 0, 0, 0, one);
+		if (second >= 2)
+			collisionCheck(maxHeight / 2, maxWidth, 0, maxWidth / 2, 0, 0, 0, 0, two);
+		if (third >= 2)
+			collisionCheck(maxHeight, maxWidth, minHeight / 2, minWidth / 2, 0, 0, 0, 0, three);
+		if (fourth >= 2)
+			collisionCheck(maxHeight, maxWidth / 2, minHeight / 2, 0, 0, 0, 0, 0, four);
 	}
 }

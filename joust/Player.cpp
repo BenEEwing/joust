@@ -39,7 +39,7 @@ int Player::getLives()
 }
 
 
-bool Player::collision(double colx, double coly, bool die)
+bool Player::collision(bool die)
 {
 	bool isDelete = false; //Decide if the object should be deleted from the array in StateManager
 	if (die)
@@ -53,9 +53,9 @@ bool Player::collision(double colx, double coly, bool die)
 	}
 	else
 	{
-		this->setVX(this->getVX() * -1 / 2); //Flip the velocity and cut it in half.
-		if (this->getVY() > 0) //If the y velocity wasn't moving downward.
-			this->setVY(this->getVY() * -1 / 2);
+		this->setVX(this->getVX() * -1/2); //Flip the velocity and cut it in half.
+		if (this->getVY() < 0) //If the y velocity wasn't moving downward.
+			this->setVY(this->getVY() * -1/2);
 		else
 			this->setVY(0); //Stop y velocity completely
 	}
