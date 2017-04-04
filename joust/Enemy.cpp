@@ -40,8 +40,8 @@ void Enemy::setStats()
 		break;
 	case 1: //Enemy Name: Bounder
 		setSprite("Bounder.png"); 
-		setL(1);
-		setW(1);
+		setL(5);
+		setW(5);
 		setMaxSpeed(1);
 		break;
 	case 2: //Enemy Name: Hunter Egg

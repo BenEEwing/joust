@@ -56,25 +56,11 @@ void StateManager::run()
 				if (event.type == sf::Event::Closed)
 					gameWindow->close();
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-				{
 					manageKey(sf::Keyboard::Key::Left);
-					x = sf::Keyboard::Key::Right;
-					col.at(0)->changeDirection(false);
-				}
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-				{
 					manageKey(sf::Keyboard::Key::Right);
-					x = sf::Keyboard::Key::Right;
-					col.at(0)->changeDirection(true);
-				}
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && x != sf::Keyboard::Key::Space) //If it's space and you didn't press space last time.
-				{
+				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 					manageKey(sf::Keyboard::Key::Space);
-					x = sf::Keyboard::Key::Space;
-				}
-				else
-					x = sf::Keyboard::Key::Right;
-
 			}
 			updateGame(level); //Call to doing every game thing.
 			frame++; //Increase frames since the clock is constantly growing.
@@ -90,9 +76,9 @@ void StateManager::applyVelocity()
 	{
 		if (col.at(i)->getType() !=0)
 		{
-			if (col.at(i)->getVY() < 5) //Going to be an if to see if it's going up.
+			if (col.at(i)->getVY() < 5 && col.at(i)->getVY() != 0) //Going to be an if to see if it's going up.
 				col.at(i)->setVY(col.at(i)->getVY() + 0.2); //Need to test to see what number actually makes sense here for gravity.
-			else
+			else if (col.at(i)->getVY() != 0)
 				col.at(i)->setVY(5);
 			if (col.at(i)->getVX() > 0 && col.at(i)->getVX() - 0.2 > 0)
 				col.at(i)->setVX(col.at(i)->getVX() - 0.2); //Natural slowing down, seems bad right now, not sure on the math for this stuff.
@@ -141,11 +127,6 @@ void StateManager::drawWindow()
 		pTexture.loadFromFile(col.at(i)->getSprite());
 		pSprite.setTexture(pTexture);		
 		pSprite.setPosition(col.at(i)->getX(), col.at(i)->getY());
-		if (col.at(i)->getDirection() == false)
-		{
-			pSprite.setOrigin(pSprite.getLocalBounds().width, 0 );
-			pSprite.setScale(-1, 1);
-		}
 		gameWindow->draw(pSprite);
 		std::cout << "x: " << col.at(i)->getX() << "y: " << col.at(i)->getY() << std::endl;
 	}
@@ -157,15 +138,9 @@ void StateManager::levelGen(int level)
 {
 	if (level == 0)
 	{
-		//addObj(new GameObject(100, 500, 10, 5, 0, 0, "plat5.png"));
-		addObj(new Enemy(500, 450, 10, 5, 0, 0, "Bounder.png",1));
+		addObj(new GameObject(100, 500, 25, 25, 0, 0, "plat5.png"));
+		addObj(new Enemy(500, 500, 10, 5, 2, 0, "Bounder.png",1));
 	}
-}
-
-//Check quadrants of the window, narrow in on where he collision may be.
-void StateManager::collisionCheck()
-{
-	//Check for the collision, call collision for the objects and delete the ones that need to be deleted.
 }
 
 //Change Velocity based on key press/Pause menu.
@@ -205,9 +180,10 @@ void StateManager::addObj(GameObject* x)
 void StateManager::updateGame(int level)
 {	
 	levelGen(level);
+	collisionCheck(800, 600, 0, 0, 0, 0, 0, 0,col);	
 	applyVelocity();
 	drawWindow();
-	collisionCheck(800, 600, 0, 0, 0, 0, 0, 0,col);
+
 	//Functions
 }
 
@@ -223,7 +199,7 @@ void StateManager::playSoundFile(std::string filename)
 	sound.play();
 }
 
-//Breaks with multiple objects in the same area, but checking 2 is fine. I think it may be the infinite vectors I'm using, could def be improved.
+
 void StateManager::collisionCheck(double maxHeight, double maxWidth, double minHeight, double minWidth, int first,int second, int third, int fourth, vector<GameObject*> newSet)
 {
 	vector<GameObject*> one,two,three,four;
@@ -238,7 +214,7 @@ void StateManager::collisionCheck(double maxHeight, double maxWidth, double minH
 			cout << "Collision!" << endl;
 			if (newSet.at(0)->getY() > newSet.at(1)->getY())
 			{
-				if (newSet.at(0)->collision(true) && !dynamic_cast<Player*>(col.at(0))) //Makes no sense, poly is fucked for detecting if it's an enemy...
+				if (newSet.at(0)->collision(true) && !dynamic_cast<Player*>(col.at(0))) 
 				{
 					for (int i = 0; i < col.size(); i++)
 					{
