@@ -15,7 +15,7 @@ using namespace std;
 
 StateManager::StateManager()
 {
-	col.push_back(new Player(50, 50, 5, 5, 5, 3, "player.png")); //Make player at position 0.
+	col.push_back(new Player(102, 102, 5, 5, 5, 10, "player.png")); //Make player at position 0.
 	sf::RenderWindow window(sf::VideoMode(800, 600), "Joust");
 	sf::RenderWindow * windowptr = &window;
 	gameWindow = windowptr;
@@ -38,7 +38,6 @@ void StateManager::run()
 	high_resolution_clock::time_point first = high_resolution_clock::now(); //Original time.
 	bool exit = false;
 	int frame = 0; //Number of frames that have passed.
-	sf::Keyboard::Key x; //Checking for space bar so you can't just hold it and continuously go.
 	int level = 0;
 	while (!exit)
 	{
@@ -138,7 +137,7 @@ void StateManager::levelGen(int level)
 {
 	if (level == 0)
 	{
-		addObj(new GameObject(100, 500, 25, 25, 0, 0, "plat5.png"));
+		addObj(new GameObject(100, 500, 50, 50, 0, 0, "plat5.png"));
 		addObj(new Enemy(500, 500, 10, 5, 2, 0, "Bounder.png",1));
 	}
 }
@@ -156,13 +155,13 @@ void StateManager::manageKey(sf::Keyboard::Key input)
 			col.at(0)->setVY(-2);
 		break;
 	case sf::Keyboard::Key::Left:
-		if (col.at(0)->getVX() - 0.5 < col.at(0)->getMaxSpeed() * -1)
+		if (col.at(0)->getVX() - 0.5 > col.at(0)->getMaxSpeed() * -1)
 			col.at(0)->setVX(col.at(0)->getVX() - 0.5);
 		else
 			col.at(0)->setVX(col.at(0)->getMaxSpeed() * -1);
 		break;
 	case sf::Keyboard::Key::Right:
-		if (col.at(0)->getVX() + 0.5 > col.at(0)->getMaxSpeed())
+		if (col.at(0)->getVX() + 0.5 < col.at(0)->getMaxSpeed())
 			col.at(0)->setVX(col.at(0)->getVX() + 0.5);
 		else
 			col.at(0)->setVX(col.at(0)->getMaxSpeed());
@@ -180,7 +179,7 @@ void StateManager::addObj(GameObject* x)
 void StateManager::updateGame(int level)
 {	
 	levelGen(level);
-	collisionCheck(800, 600, 0, 0, 0, 0, 0, 0,col);	
+	collisionCheck();	
 	applyVelocity();
 	drawWindow();
 
@@ -200,91 +199,68 @@ void StateManager::playSoundFile(std::string filename)
 }
 
 
-void StateManager::collisionCheck(double maxHeight, double maxWidth, double minHeight, double minWidth, int first,int second, int third, int fourth, vector<GameObject*> newSet)
+void StateManager::collisionCheck()
 {
-	vector<GameObject*> one,two,three,four;
-
-	if (newSet.size() == 2)
+	for (int i = 0; i < col.size(); i++)
 	{
-		int colx, coly;
-		if (newSet.at(0)->getY() + newSet.at(0)->getL() < newSet.at(1)->getY() || newSet.at(1)->getY() + newSet.at(1)->getL() < newSet.at(0)->getY() || newSet.at(0)->getX() + newSet.at(0)->getW() < newSet.at(1)->getX() || newSet.at(1)->getX() + newSet.at(1)->getW() < newSet.at(0)->getX())
-			cout << "No Collision!!!" << endl;
-		else
+		for (int c = 0; c < col.size(); c++)
 		{
-			cout << "Collision!" << endl;
-			if (newSet.at(0)->getY() > newSet.at(1)->getY())
-			{
-				if (newSet.at(0)->collision(true) && !dynamic_cast<Player*>(col.at(0))) 
-				{
-					for (int i = 0; i < col.size(); i++)
-					{
-						if (col.at(i) == newSet.at(0))
-						{
-							col.erase(col.begin() + i);
-							i = col.size();
-						}
-					}
-				}
-				else if (newSet.at(0)->collision(true))
-				{
-					//End the game?????
-				}
-				newSet.at(1)->collision(false);
-			}
+			if (col.at(c)->getY() + col.at(c)->getL() < col.at(i)->getY() || col.at(i)->getY() + col.at(i)->getL() < col.at(c)->getY() || col.at(c)->getX() + col.at(c)->getW() < col.at(i)->getX() || col.at(i)->getX() + col.at(i)->getW() < col.at(c)->getX() || i == c)
+				cout << "No Collision!" << endl;
 			else
 			{
-				if (newSet.at(1)->collision(true) && !dynamic_cast<Player*>(col.at(1)))
-				{
-					for (int i = 0; i < col.size(); i++)
+				cout << "Collision!!!" << endl;
+				if (col.at(c)->getY() <= col.at(i)->getY() + col.at(i)->getL())
+				{					
+					col.at(c)->collision(false, col.at(i)->getX(), col.at(c)->getY());
+					if (col.at(i)->collision(true, col.at(c)->getX(), col.at(i)->getY()) && !dynamic_cast<Player*>(col.at(c)))
+						col.erase(col.begin() + c);
+					else if (col.at(i)->collision(true, col.at(c)->getX(), col.at(i)->getY()))
 					{
-						if (col.at(i) == newSet.at(1))
-						{
-							col.erase(col.begin() + i);
-							i = col.size();
-						}
+						//End the game?????
 					}
 				}
-				else if (newSet.at(1)->collision(true))
-				{
-					//End the game?????
+				else if (col.at(i)->getX() <= col.at(c)->getX() + col.at(c)->getW() / 2 && col.at(i)->getY() <= col.at(c)->getY() + col.at(c)->getL() / 2) //If it's above it and to the left
+				{					
+					col.at(i)->collision(false, col.at(c)->getX(), col.at(c)->getY());
+					if (col.at(c)->collision(true, col.at(c)->getX(), col.at(c)->getY()) && !dynamic_cast<Player*>(col.at(c)))
+						col.erase(col.begin() + c);
+					else if (col.at(c)->collision(true, col.at(c)->getX(), col.at(c)->getY()))
+					{
+						//End the game?????
+					}
 				}
-				newSet.at(0)->collision(false);
+				else if (col.at(i)->getX() <= col.at(c)->getX() + col.at(c)->getW() / 2) //If it's just to the left
+				{					
+					col.at(c)->collision(false, col.at(c)->getX(), col.at(i)->getY() + col.at(i)->getL());
+					if (col.at(i)->collision(true, col.at(c)->getX(), col.at(i)->getY() + col.at(i)->getL()) && !dynamic_cast<Player*>(col.at(i)))
+						col.erase(col.begin() + i);
+					else if (col.at(i)->collision(true, col.at(c)->getX(), col.at(i)->getY() + col.at(i)->getL()))
+					{
+						//End the game?????
+					}
+				}
+				else if (col.at(i)->getX() + col.at(i)->getW() / 2 >= col.at(c)->getX() && col.at(i)->getY() <= col.at(c)->getY() + col.at(c)->getL() / 2) //If it's to the right and above
+				{					
+					col.at(i)->collision(false, col.at(c)->getX() + col.at(c)->getW(), col.at(c)->getY());
+					if (col.at(c)->collision(true, col.at(c)->getX() + col.at(c)->getW(), col.at(c)->getY()) && !dynamic_cast<Player*>(col.at(c)))
+						col.erase(col.begin() + c);
+					else if (col.at(c)->collision(true, col.at(c)->getX() + col.at(c)->getW(), col.at(c)->getY()))
+					{
+						//End the game?????
+					}
+				}
+				else if (col.at(i)->getX() + col.at(i)->getW() / 2 >= col.at(c)->getX()) // If it's to the right
+				{					
+					col.at(c)->collision(false, col.at(c)->getX() + col.at(c)->getW(), col.at(i)->getY() + col.at(i)->getL());
+					if (col.at(i)->collision(true, col.at(c)->getX() + col.at(c)->getW(), col.at(i)->getY() + col.at(i)->getL()) && !dynamic_cast<Player*>(col.at(i)))
+						col.erase(col.begin() + i);
+					else if (col.at(i)->collision(true, col.at(c)->getX() + col.at(c)->getW(), col.at(i)->getY() + col.at(i)->getL()))
+					{
+						//End the game?????
+					}
+				}
 			}
 		}
-	}
-	else
-	{
-
-		for (int i = 0; i < newSet.size(); i++)
-		{
-			if (newSet.at(i)->getY() < maxHeight / 2 && newSet.at(i)->getY() > minHeight && newSet.at(i)->getX() < maxWidth / 2 && newSet.at(i)->getX() > minWidth) //Tally objects in top left/add to vector
-			{
-				one.push_back(newSet.at(i));
-				first++;
-			}
-			else if (newSet.at(i)->getY() < maxHeight / 2 && newSet.at(i)->getY() > minHeight && newSet.at(i)->getX() > maxWidth / 2 && newSet.at(i)->getX() > minWidth)//Tally objects in top right/add them to a vector
-			{
-				two.push_back(newSet.at(i));
-				second++;
-			}
-			else if (newSet.at(i)->getY() > maxHeight / 2 && newSet.at(i)->getY() > minHeight && newSet.at(i)->getX() > maxWidth / 2 && newSet.at(i)->getX() > minWidth)//Tally objects in bottom right/add to vector
-			{
-				three.push_back(newSet.at(i));
-				third++;
-			}
-			else if (newSet.at(i)->getY() > maxHeight / 2 && newSet.at(i)->getY() > minHeight && newSet.at(i)->getX() < maxWidth / 2 && newSet.at(i)->getX() > minWidth)//Tally objects in bottom left/add to vector
-			{
-				four.push_back(newSet.at(i));
-				fourth++;
-			}
-		}
-		if (first >= 2)
-			collisionCheck(maxHeight / 2, maxWidth / 2, 0, 0, 0, 0, 0, 0, one);
-		if (second >= 2)
-			collisionCheck(maxHeight / 2, maxWidth, 0, maxWidth / 2, 0, 0, 0, 0, two);
-		if (third >= 2)
-			collisionCheck(maxHeight, maxWidth, minHeight / 2, minWidth / 2, 0, 0, 0, 0, three);
-		if (fourth >= 2)
-			collisionCheck(maxHeight, maxWidth / 2, minHeight / 2, 0, 0, 0, 0, 0, four);
 	}
 }

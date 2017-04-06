@@ -84,9 +84,14 @@ void Enemy::setStats()
 }
 
 
-bool Enemy::collison(bool die)
+bool Enemy::collison(bool die, double colX, double colY)
 {
 	bool isDelete = false; //Decide if the object should be deleted from the array in StateManager
+	if (colX != this->getX())
+		this->setX(colX - 0.2);
+	else
+		this->setX(colX);
+	this->setY(colY);
 	if (die)
 	{
 		if (rank % 2 != 0) //Check if it's odd, because all the eggs are even

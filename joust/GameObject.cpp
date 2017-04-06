@@ -129,7 +129,7 @@ int GameObject::getMaxSpeed()
 	return maxSpeed;
 }
 
-bool GameObject::collision( bool die)
+bool GameObject::collision( bool die, double colX, double colY)
 {
 	return false;
 }

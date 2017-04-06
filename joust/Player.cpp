@@ -40,9 +40,14 @@ int Player::getLives()
 }
 
 
-bool Player::collision(bool die)
+bool Player::collision(bool die, double colX, double colY)
 {
 	bool isDelete = false; //Decide if the object should be deleted from the array in StateManager
+	if (colX != this->getX())
+		this->setX(colX - 1);
+	else
+		this->setX(colX);
+	this->setY(colY);
 	if (die)
 	{
 		if (lives != 0)
